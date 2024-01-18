@@ -1,7 +1,11 @@
 name: GitHub Classroom Workflow
 on:
   push:
-    branches: [ master ]
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
 jobs:
   build:
     name: Autograding
@@ -13,26 +17,48 @@ jobs:
 
       - uses: docker/setup-buildx-action@v2
 
-      # TODO build, publish to docker hub, deploy to k8s
+      # TODO build and run unit tests
+
+      - name: Build images
+        timeout-minutes: 10
+        run: docker compose build
+      - name: Run containers
+        timeout-minutes: 5
+        run: |
+          docker compose up -d
+        env:
+          WAIT_PORTS: 8080,8070,8060,8050
+
+      - name: Run Unit Tests
+        run: |
+          cd src/bonus-service/handlers && go test && cd ../../..
+          cd src/flight-service/handlers && go test && cd ../../..
+          cd src/ticket-service/handlers && go test && cd ../../..
 
       - name: Run API Tests
         uses: matt-ball/newman-action@master
         with:
-          collection: <variant>/postman/collection.json
-          environment: <variant>/postman/environment.json
+          # TODO insert your variant
+          collection: v1/postman/collection.json
+          environment: v1/postman/environment.json
           delayRequest: 100
           reporters: '[ "cli" ]'
 
-      - uses: education/autograding@v1
-        id: autograder
-        continue-on-error: true
+      # - uses: education/autograding@v1
+      #   id: autograder
+      #   continue-on-error: true
 
-      - name: Github auto grader mark
-        uses: Romanow/google-sheet-autograder-marker@v1.0
-        with:
-          google_token: ${{secrets.GOOGLE_API_KEY}}
-          sheet_id: "1xkgjUX6Qmk7rdJG-QPOToav-HWWtthJjnShIKnw3oIY"
-          homework_number: 4
-          user_column: 'D'
-          column_offset: 'F'
-          mark: "'+"
+      # - name: Github auto grader mark
+      #   uses: Romanow/google-sheet-autograder-marker@v1.0
+      #   with:
+      #     google_token: ${{secrets.GOOGLE_API_KEY}}
+      #     sheet_id: "1xkgjUX6Qmk7rdJG-QPOToav-HWWtthJjnShIKnw3oIY"
+      #     homework_number: 2
+      #     user_column: 'D'
+      #     column_offset: 'F'
+      #     mark: "'+"
+
+      - name: Stop containers
+        if: always()
+        continue-on-error: true
+        run: docker compose down -v
