@@ -16,10 +16,11 @@ services:
     networks:
       - db-local
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
-      interval: 15s
-      timeout: 15s
-      retries: 2
+      test: [ "CMD-SHELL", "pg_isready -q -d postgres -U postgres" ]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
 
   ticket-service:
     container_name: ticket-service
