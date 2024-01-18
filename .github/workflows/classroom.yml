@@ -43,6 +43,53 @@ jobs:
           environment: v1/postman/environment.json
           delayRequest: 100
           reporters: '[ "cli" ]'
+      
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      
+      - name: Build and publish images
+        timeout-minutes: 15
+        run: |
+          docker push bdgn111/lab4-gateway
+          docker push bdgn111/lab4-tickets
+          docker push bdgn111/lab4-flights
+          docker push bdgn111/lab4-bonuses
+      
+      - name: Start Minikube
+        uses: medyagh/setup-minikube@master
+      
+      - name: Try the cluster !
+        run: |
+          kubectl get pods -A
+ 
+      - name: Create Namespace
+        run: |
+          kubectl create namespace bdgn111
+          
+      - name: Deploy DB and services
+        run: |
+          kubectl get namespace
+          
+          cd k8s
+          echo "------------------Deploy DB------------------"
+          helm delete postgres --namespace bdgn111 --ignore-not-found
+          helm install -n bdgn111 postgres ./postgres
+          
+          echo "------------------Deploy services------------------"
+          helm delete tickets --namespace bdgn111 --ignore-not-found
+          helm install -n bdgn111 tickets ./services
+      
+      - name: Wait 60s
+        uses: jakejarvis/wait-action@master
+        with:
+          time: '60s'
+      
+      - name: All resources from namespace bdgn111
+        run: |
+          kubectl get all -n bdgn111
 
       # - uses: education/autograding@v1
       #   id: autograder

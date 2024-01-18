@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    name: {{ .Chart.Name }}
+    app: {{ .Chart.Name }}
+    deleteLabel: {{ .Chart.Name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}
+        deleteLabel: {{ .Chart.Name }}
+    spec:
+      volumes:
+        - name: postgres-data
+        - name: postgres-init-data
+          configMap:
+            name: "{{ .Chart.Name }}-init"
+      containers:
+        - name: {{ .Chart.Name }}
+          image: {{ .Values.image }}
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: POSTGRES_USER
+              value: {{ .Values.pg.default.user }}
+            - name: POSTGRES_PASSWORD
+              value: "{{ .Values.pg.default.password }}"
+            - name: POSTGRES_DB
+              value: {{ .Values.pg.default.db }}
+          ports:
+            - name: "{{ .Chart.Name }}-port"
+              containerPort: {{ .Values.svc.targetPort }}
+              protocol: TCP
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+            - name: postgres-init-data
+              mountPath: /docker-entrypoint-initdb.d

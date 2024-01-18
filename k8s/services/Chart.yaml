@@ -1,0 +1,19 @@
+apiVersion: v2
+name: services-chart
+#description: A Helm chart for flights
+type: application
+version: 1.0.0
+#appVersion: "1.16.0"
+dependencies:
+  - name: service-chart
+    version: 1.0.0
+    alias: gateway
+  - name: service-chart
+    version: 1.0.0
+    alias: tickets
+  - name: service-chart
+    version: 1.0.0
+    alias: flights
+  - name: service-chart
+    version: 1.0.0
+    alias: bonus

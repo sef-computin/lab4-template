@@ -27,6 +27,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.ticket-service
+    image: bdgn111/lab4-tickets
     environment:
       PORT: "8070"
     depends_on:
@@ -43,6 +44,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.flight-service
+    image: bdgn111/lab4-flights
     environment:
       PORT: "8060"
     depends_on:
@@ -59,6 +61,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.bonus-service
+    image: bdgn111/lab4-bonuses
     environment:
       PORT: "8050"
     depends_on:
@@ -71,9 +74,11 @@ services:
       - bonus
 
   gateway-service:
+    container_name: gateway-service
     build:
       context: ./
       dockerfile: Dockerfile.gateway-service
+    image: bdgn111/lab4-gateway
     environment:
       PORT: "8080"
     ports:

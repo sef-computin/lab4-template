@@ -1,0 +1,16 @@
+namespace: bdgn111
+
+svc:
+  port: 5432
+  targetPort: 5432
+
+image: library/postgres:13
+
+pg:
+  default:
+    user: postgres
+    password: postgres
+    db: postgres
+  primary:
+    username: program
+    password: test

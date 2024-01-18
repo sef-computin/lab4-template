@@ -1,0 +1,51 @@
+bonus:
+  service:
+    type: ClusterIP
+    port: 8050
+    image: bdgn111/lab4-bonuses:latest
+    env:
+      DATA_BASE_PORT: 5432
+      DATA_BASE_NAME: postgres
+      DATA_BASE_USER: postgres
+      DATA_BASE_PASS: postgres
+      DATA_BASE_HOST: postgres
+
+tickets:
+  service:
+    type: ClusterIP
+    port: 8050
+    image: bdgn111/lab4-tickets:latest
+    env:
+      DATA_BASE_PORT: 5432
+      DATA_BASE_NAME: postgres
+      DATA_BASE_USER: postgres
+      DATA_BASE_PASS: postgres
+      DATA_BASE_HOST: postgres
+
+flights:
+  service:
+    type: ClusterIP
+    port: 8060
+    image: bdgn111/lab4-flights:latest
+    env:
+      DATA_BASE_PORT: 5432
+      DATA_BASE_NAME: postgres
+      DATA_BASE_USER: postgres
+      DATA_BASE_PASS: postgres
+      DATA_BASE_HOST: postgres
+
+gateway:
+   service:
+    type: NodePort
+    port: 8080
+    nodePort: 30000
+    image: bdgn111/lab4-gateway:latest
+    isGateway: true
+    env:
+      FLIGHTS_SERVICE_HOST: flights.bdgn111.svc.cluster.local
+      FLIGHTS_SERVICE_PORT: 8060
+      BONUS_SERVICE_HOST: bonus.bdgn111.svc.cluster.local
+      BONUS_SERVICE_PORT: 8050
+      TICKET_SERVICE_HOST: ticket.bdgn111.svc.cluster.local
+      TICKET_SERVICE_PORT: 8070
+      
