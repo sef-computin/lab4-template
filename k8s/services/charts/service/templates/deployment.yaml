@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    service: {{ .Chart.Name  }}
+  name: {{ .Chart.Name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: {{ .Chart.Name }}
+  template:
+    metadata:
+      labels:
+        service: {{ .Chart.Name }}
+    spec:
+      containers:
+        - image: {{ .Values.service.image }}
+          env:     
+            {{ range $name, $value := .Values.service.env }}
+            - name: {{ $name }}
+              value: {{ $value | quote }}
+            {{ end }}
+          imagePullPolicy: Always
+          name: {{ .Chart.Name }}-service
+          ports:
+            - name: "{{ .Chart.Name }}-port"
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+      restartPolicy: Always
