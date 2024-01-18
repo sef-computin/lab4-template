@@ -38,7 +38,7 @@ jobs:
       - name: Run API Tests
         uses: matt-ball/newman-action@master
         with:
-          # TODO insert your variant
+
           collection: v1/postman/collection.json
           environment: v1/postman/environment.json
           delayRequest: 100
