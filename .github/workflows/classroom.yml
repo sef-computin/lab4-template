@@ -19,15 +19,45 @@ jobs:
 
       # TODO build and run unit tests
 
+
       - name: Build images
         timeout-minutes: 10
-        run: docker compose build
-      - name: Run containers
-        timeout-minutes: 5
         run: |
-          docker compose up -d
+          docker-compose build postgres
+          docker-compose build gateway-service
+          docker-compose build ticket-service
+          docker-compose build bonus-service
+          docker-compose build flight-service
+
+      - name: Setup db
+        run: |
+          docker-compose up -d postgres
+          docker-compose logs postgres
+          sleep 5
+          
+          cd postgres
+          psql "user=postgres hostaddr=127.0.0.1 port=5432 password=postgres" < scripts/db-v1.sql
+          cd ..
+
+      - name: Run containers
+        timeout-minutes: 10
+        run: |
+          docker-compose up -d ticket-service
+          docker-compose up -d flight-service
+          docker-compose up -d bonus-service
+          docker-compose up -d gateway-service
         env:
           WAIT_PORTS: 8080,8070,8060,8050
+
+      # - name: Build images
+      #   timeout-minutes: 10
+      #   run: docker compose build
+      # - name: Run containers
+      #   timeout-minutes: 5
+      #   run: |
+      #     docker compose up -d
+      #   env:
+      #     WAIT_PORTS: 8080,8070,8060,8050
 
       - name: Run Unit Tests
         run: |
